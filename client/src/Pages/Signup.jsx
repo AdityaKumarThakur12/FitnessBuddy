@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const Signup = () => {
   const navigate = useNavigate();
 
   return (
@@ -21,27 +21,45 @@ const Login = () => {
 
       <div className="relative z-20 min-h-screen flex flex-col items-center justify-center p-6">
         <h1 className="text-4xl md:text-5xl font-bold mb-2 text-center text-white">
-          Welcome Back
+          Join FitPulse AI
         </h1>
         <p className="text-lg opacity-90 text-center max-w-md text-white mb-8">
-          Continue your fitness journey with personalized workouts and expert guidance
+          Unleash your potential with smart fitness plans and expert guidance
         </p>
 
         <div className="max-w-md w-full">
           <div className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border border-gray-700/50">
-            <h2 className="text-2xl font-bold text-white mb-6 text-center">Sign in to your account</h2>
+            <h2 className="text-2xl font-bold text-white mb-6 text-center">Create your account</h2>
             
             <p className="text-gray-300 text-center mb-6">
-              New to FitPulse AI?{" "}
+              Already have an account?{" "}
               <span 
-                onClick={() => navigate('/signup')}
+                onClick={() => navigate('/login')}
                 className="text-sky-400 hover:text-sky-300 cursor-pointer transition-colors"
               >
-                Create account
+                Sign in
               </span>
             </p>
             
             <form className="space-y-4">
+              <div>
+                <input
+                  className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                  type="text"
+                  placeholder="First Name"
+                  required
+                />
+              </div>
+              
+              <div>
+                <input
+                  className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                  type="text"
+                  placeholder="Last Name"
+                  required
+                />
+              </div>
+
               <div>
                 <input
                   className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
@@ -59,9 +77,17 @@ const Login = () => {
                   required
                 />
               </div>
+
+              <div className="text-left mb-2">
+                <p className="text-xs text-gray-400">
+                  By clicking Create account, you agree to our{" "}
+                  <a href="#" className="text-sky-400 hover:text-sky-300">User Agreement</a> and{" "}
+                  <a href="#" className="text-sky-400 hover:text-sky-300">Privacy Notice</a>.
+                </p>
+              </div>
               
               <button className="w-full bg-sky-600 hover:bg-sky-700 text-white py-3 rounded-xl font-medium flex items-center justify-center transition-colors">
-                Sign In
+                Create Account
                 <svg xmlns="http://www.w3.org/2000/svg" className="ml-2 h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                   <polyline points="12 5 19 12 12 19"></polyline>
@@ -95,11 +121,6 @@ const Login = () => {
                 Apple
               </button>
             </div>
-            
-            <div className="flex items-center justify-center mt-6 text-gray-300">
-              <input type="checkbox" id="stay-signed-in" className="mr-2" />
-              <label htmlFor="stay-signed-in">Stay signed in</label>
-            </div>
           </div>
         </div>
 
@@ -116,4 +137,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;
