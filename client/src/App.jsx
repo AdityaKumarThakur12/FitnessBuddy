@@ -5,7 +5,9 @@ import Navbar from './Components/Navbar';
 import Footer from './Components/Footer';
 import AOS from "aos";
 import "aos/dist/aos.css"
-
+import Signup from './pages/Signup';
+import Login from './Pages/Login';
+import NotFound from './Pages/NotFound';
 const App = () => {
 
   useEffect(() => {
@@ -13,15 +15,16 @@ const App = () => {
   }, []);
   return (
     <div>
-
       <Router>
         <Navbar />
         <Routes>
           <Route path='/' element={<Home />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/signup' element={<Signup />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />
       </Router>
-
     </div>
   )
 }
