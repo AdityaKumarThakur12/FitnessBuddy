@@ -4,6 +4,7 @@ import { useWorkout } from '../Context/workoutContext'
 import { motion } from 'framer-motion'
 import { FiArrowRight, FiActivity, FiStar, FiCalendar, FiClock, FiAward, FiPieChart } from 'react-icons/fi'
 import WorkoutCard from '../Components/workoutCard';
+import MindMirror from '../Components/mind'
 import Carousel from '../Components/carousel';
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -38,9 +39,9 @@ const Home = () => {
 
     return (
         <div className="space-y-12 p-2 lg:p-10 dark:bg-gray-900" data-aos="flip-left" data-aos-easing="ease-out-cubic"
-        data-aos-duration="2000">
+            data-aos-duration="2000">
             {/* Hero section */}
-            <section className="relative rounded-3xl overflow-hidden text-white py-10 px-6 md:px-12 shadow-2xl lg:px-16"  data-aos="zoom-in-down">
+            <section className="relative rounded-3xl overflow-hidden text-white py-10 px-6 md:px-12 shadow-2xl lg:px-16" data-aos="zoom-in-down">
                 {/* Background Video */}
                 <video
                     autoPlay
@@ -145,12 +146,17 @@ const Home = () => {
                     </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"  data-aos="zoom-in-down">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-aos="zoom-in-down">
                     {featuredWorkouts.map((workout, index) => (
                         <WorkoutCard key={workout.id} workout={workout} />
                     ))}
                 </div>
             </section>
+
+            <MindMirror/>
+
+            
+
 
             {/* Features section */}
             <section className="bg-gray-50 dark:bg-gray-800/50 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-12 rounded-xl" data-aos="zoom-out-right">
@@ -229,10 +235,47 @@ const Home = () => {
                 </motion.div>
             </section>
 
+            <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white rounded-3xl px-8 py-14 shadow-inner mt-12" data-aos="fade-up" data-aos-duration="1500">
+                <div className="max-w-5xl mx-auto flex flex-col lg:flex-row items-center gap-10">
+                    {/* Left: Inspo + Vibes */}
+                    <div className="w-full lg:w-1/2 space-y-6">
+                        <h2 className="text-4xl font-bold leading-tight">
+                            The <span className="text-sky-400">Mind Gym</span> 🧠
+                        </h2>
+                        <p className="text-lg text-gray-300">
+                            Fitness ain't just what your mirror reflects. It's discipline in chaos, clarity in the noise. Welcome to your mental gains arena.
+                        </p>
+                        <ul className="space-y-2 text-gray-400">
+                            <li className="flex items-center"><FiClock className="mr-2 text-sky-400" /> Guided meditation for pre-workout focus</li>
+                            <li className="flex items-center"><FiStar className="mr-2 text-sky-400" /> Daily affirmations to crush doubt</li>
+                            <li className="flex items-center"><FiAward className="mr-2 text-sky-400" /> Weekly mental toughness challenges</li>
+                        </ul>
+                        <button className="mt-6 px-6 py-3 bg-sky-600 hover:bg-sky-700 rounded-lg text-white font-semibold shadow-lg">
+                            Enter The Mind Gym
+                        </button>
+                    </div>
+
+                    {/* Right: Looping Calming Video */}
+                    <div className="w-full lg:w-1/2 rounded-xl overflow-hidden shadow-lg">
+                        <video
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            className="w-full h-80 object-cover rounded-4xl"
+                        >
+                            <source src="https://videos.pexels.com/video-files/5319763/5319763-uhd_2560_1440_25fps.mp4" type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+            </section>
+
+
             {/* CTA section */}
             <section className="text-center">
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Ready to Start Your Fitness Journey?</h2>
-                <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4" data-aos="fade-down-left">Ready to Start Your Fitness Journey?</h2>
+                <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto" data-aos="fade-down-right">
                     Join thousands of users who have transformed their lives with FitPulse AI's personalized fitness guidance.
                 </p>
                 <motion.div

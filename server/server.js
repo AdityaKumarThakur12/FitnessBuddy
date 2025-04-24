@@ -1,15 +1,20 @@
-const express = require("express")
-const { connectingDB } = require("./db")
-const app = express()
 require("dotenv").config()
-app.use(express.json())
-const cors = require('cors');
+const express = require("express")
+const { connectingDB } = require("./db");
+const cors = require('cors')
+const exerciseRoutes = require('./routes/exerciseRoutes')
 const { userRouter } = require("./routes/user.route")
+const app = express();
+
+
+app.use(express.json());
 app.use(cors());
 
-connectingDB()
 
+app.use('/api/exercise', exerciseRoutes)
 app.use("/user",userRouter)
+
+connectingDB()
 
 
 app.use((req,res)=>{

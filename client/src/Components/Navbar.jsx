@@ -1,44 +1,45 @@
-import { useState, useEffect } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
-// import { useAuth } from '../context/AuthContext'
-import { motion } from 'framer-motion'
-import * as Fi from 'react-icons/fi'
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { FiHome,  FiInfo, FiCalendar, FiUser, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 import AOS from "aos";
-import "aos/dist/aos.css"
+import "aos/dist/aos.css";
+// import { useAuth } from '../context/AuthContext'; // Uncomment if using AuthContext
 
 const Navbar = () => {
-  const { currentUser, logout } = useState(' ')
-  const navigate = useNavigate()
-  const location = useLocation()
+  // Replace the following line with your authentication context if applicable
+  const currentUser = null; // Replace with `useAuth()` if using AuthContext
+  const logout = () => {}; // Replace with actual logout function
+
+  const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-          AOS.init();
-      }, []);
+    AOS.init();
+  }, []);
 
   const handleLogout = () => {
-    logout()
-    navigate('/login')
-    setMobileMenuOpen(false)
-  }
+    logout();
+    navigate('/login');
+    setMobileMenuOpen(false);
+  };
 
   const navigationItems = [
-    { name: 'Home', path: '/', icon: <Fi.FiHome className="mr-2" /> },
-    { name: 'Workouts', path: '/workouts', icon: <Fi.FiDumbbell className="mr-2" /> },
-    { name: 'Exercises', path: '/exercises', icon: <Fi.FiInfo className="mr-2" /> },
-    { name: 'Diet Plan', path: '/diet-plan', icon: <Fi.FiCalendar className="mr-2" /> },
-    { name: 'Progress', path: '/progress', icon: <Fi.FiCalendar className="mr-2" /> },
-  ]
+    { name: 'Home', path: '/', icon: <FiHome className="mr-2" /> },
+    { name: 'Workouts', path: '/workouts', icon: <FiInfo/> },
+    { name: 'Exercises', path: '/exercises', icon: <FiInfo className="mr-2" /> },
+    { name: 'Diet Plan', path: '/diet-plan', icon: <FiCalendar className="mr-2" /> },
+    { name: 'Progress', path: '/progress', icon: <FiCalendar className="mr-2" /> },
+  ];
 
   return (
-    <nav className="bg-white shadow-sm dark:bg-gray-800 sticky top-0 z-50 " >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="bg-white shadow-sm dark:bg-gray-800 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-2">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <span className="text-xl font-bold text-sky-600 dark:text-sky-400 dar">
-                FitPulse
-              </span>
+              <img src="/logofit.png" alt="FitPulse Logo" className="w-40 h-20" />
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               {navigationItems.map((item) => (
@@ -56,7 +57,7 @@ const Navbar = () => {
               ))}
             </div>
           </div>
-          
+
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
             {currentUser ? (
               <div className="flex items-center">
@@ -64,14 +65,14 @@ const Navbar = () => {
                   to="/profile"
                   className="flex items-center bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-150"
                 >
-                  <Fi.FiUser className="mr-2" />
+                  <FiUser className="mr-2" />
                   <span>{currentUser.name}</span>
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="ml-4 flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                 >
-                  <Fi.FiLogOut className="mr-1" />
+                  <FiLogOut className="mr-1" />
                   <span>Logout</span>
                 </button>
               </div>
@@ -92,7 +93,7 @@ const Navbar = () => {
               </div>
             )}
           </div>
-          
+
           {/* Mobile menu button */}
           <div className="flex items-center sm:hidden">
             <button
@@ -100,9 +101,9 @@ const Navbar = () => {
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
             >
               {mobileMenuOpen ? (
-                <Fi.FiX className="block h-6 w-6" />
+                <FiX className="block h-6 w-6" />
               ) : (
-                <Fi.FiMenu className="block h-6 w-6" />
+                <FiMenu className="block h-6 w-6" />
               )}
             </button>
           </div>
@@ -115,7 +116,7 @@ const Navbar = () => {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="sm:hidden"
+          className="sm:hidden bg-white dark:bg-gray-800 shadow-md"
         >
           <div className="pt-2 pb-3 space-y-1">
             {navigationItems.map((item) => (
@@ -125,9 +126,9 @@ const Navbar = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`${
                   location.pathname === item.path
-                    ? 'bg-primary-50 dark:bg-gray-700 border-primary-500 text-primary-700 dark:text-white'
-                    : 'border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                } pl-3 pr-4 py-2 border-l-4 text-base font-medium flex items-center`}
+                    ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                    : 'text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                } block pl-3 pr-4 py-2 text-base font-medium`}
               >
                 {item.icon}
                 {item.name}
@@ -140,16 +141,16 @@ const Navbar = () => {
                 <Link
                   to="/profile"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+                  className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
-                  <Fi.FiUser className="mr-2" />
+                  <FiUser className="mr-2" />
                   Profile
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left  pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+                  className="w-full text-left block pl-3 pr-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
-                  <Fi.FiLogOut className="mr-2" />
+                  <FiLogOut className="mr-2" />
                   Logout
                 </button>
               </div>
@@ -165,7 +166,7 @@ const Navbar = () => {
                 <Link
                   to="/signup"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-md text-base font-medium mt-2"
+                  className="block bg-sky-600 hover:bg-sky-700 text-white px-3 py-2 rounded-md text-base font-medium mt-2"
                 >
                   Sign Up
                 </Link>
@@ -175,7 +176,7 @@ const Navbar = () => {
         </motion.div>
       )}
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
