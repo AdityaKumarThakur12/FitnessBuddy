@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import axios from 'axios';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -25,26 +26,17 @@ const Signup = () => {
       state,
     };
   
-    try {
-      const res = await fetch("http://localhost:8000/user/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-  
-      const data = await res.json();
-      if (res.ok) {
-        alert(data.msg);
-      } else {
-        alert(data.msg);
-      }
-    } catch (err) {
+    axios.post("http://localhost:8000/user/signup", formData)
+    .then((res) => {
+      alert(res.data.msg);
+      navigate("/login");
+    })
+    .catch((err) => {
+      const msg = err.response?.data?.msg || "Signup failed";
       console.error("Signup failed", err);
-      alert("Signup failed");
-    }
-  };
+      alert(msg);
+    });
+};
 
   return (
     <div className="min-h-screen relative">

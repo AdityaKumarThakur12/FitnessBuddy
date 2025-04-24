@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import useAuth from "../Context/AuthContext";
+import axios from 'axios';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -8,31 +9,22 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
+  
     const loginData = { email, password };
-
-    try {
-      const res = await fetch("http://localhost:8000/user/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json"},
-        body: JSON.stringify(loginData),
+  
+    axios.post("http://localhost:8000/user/login", loginData)
+      .then((res) => {
+        const {refreshToken, findUser } = res.data;
+        login(refreshToken);
+        localStorage.setItem('userData', JSON.stringify(findUser));
+        navigate("/");
+      })
+      .catch((err) => {
+        const msg = err.response?.data?.msg || "Login failed";
+        alert(msg);
       });
-
-      const data = await res.json();
-      if (res.ok) {
-        const { msg, refreshToken, findUser } = data;
-      console.log("Message:", msg);
-      console.log("User Data:", findUser);
-      login(refreshToken); 
-      localStorage.setItem('userData', JSON.stringify(findUser));
-      navigate("/");
-      } else {
-        alert(data.msg);
-      }
-    } catch (err) {
-      alert("Login failed",err);
-    }
   };
 
   return (
