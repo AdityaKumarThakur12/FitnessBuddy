@@ -1,15 +1,21 @@
-const express = require("express")
-const { connectingDB } = require("./db")
-const app = express()
 require("dotenv").config()
-app.use(express.json())
+const express = require("express")
+const { connectingDB } = require("./db");
+const cors = require('cors')
+const exerciseRoutes = require('./routes/exerciseRoutes')
+const app = express();
+
+
+app.use(express.json());
+app.use(cors());
+
+
+app.use('/api/exercise', exerciseRoutes)
 
 
 connectingDB()
 
-app.use((req,res)=>{
-    return res.status(404).json({msg:`Route Not Found`})
-})
+
 
 const port = process.env.port || 8080
 app.listen(port,()=>{
