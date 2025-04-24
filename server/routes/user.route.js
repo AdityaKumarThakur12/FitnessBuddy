@@ -26,6 +26,7 @@ userRouter.post("/login",async (req,res)=>{
     try {
         if(email && password){
             const findUser = await userModel.findOne({email})
+            console.log(findUser)
             if(!findUser){
                 return res.status(404).json({msg:"User not found"})
             }
@@ -34,10 +35,10 @@ userRouter.post("/login",async (req,res)=>{
                     return res.status(401).json({msg:"Wrong Password",err})
                 }
                 if(result){
-                    const refreshToken = jwt.sign({ userId:findUser._id }, process.env.JWT_TOKEN);
+                    const refreshToken = jwt.sign({ userId:findUser._id }, process.env.JWT_TOKEN,{ expiresIn: '7d' });
                     findUser.refreshToken = refreshToken
                     findUser.save()
-                    return res.status(200).json({msg:"user Logged In successfully",refreshToken})
+                    return res.status(200).json({msg:"user Logged In successfully",refreshToken,findUser})
                 }
                 return res.status(401).json({ msg: "Wrong password" });
             });
