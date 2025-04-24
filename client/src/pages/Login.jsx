@@ -1,38 +1,37 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import useAuth from "../Context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    const loginData = {
-      email,
-      password,
-    };
+    const loginData = { email, password };
 
     try {
       const res = await fetch("http://localhost:8000/user/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify(loginData),
       });
 
       const data = await res.json();
       if (res.ok) {
-        alert(data.msg);
-        console.log("Refresh Token:", data.refreshToken);
-        // localStorage.setItem("refreshToken", data.refreshToken);
+        const { msg, refreshToken, findUser } = data;
+      console.log("Message:", msg);
+      console.log("User Data:", findUser);
+      login(refreshToken); 
+      localStorage.setItem('userData', JSON.stringify(findUser));
+      navigate("/");
       } else {
         alert(data.msg);
       }
     } catch (err) {
-      console.error("Login failed:", err);
-      alert("Login failed");
+      alert("Login failed",err);
     }
   };
 
