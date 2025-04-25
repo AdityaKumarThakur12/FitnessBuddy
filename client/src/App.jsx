@@ -11,6 +11,7 @@ import Signup from './Pages/Signup';
 import Login from './Pages/Login';
 import NotFound from './Pages/NotFound';
 import Loading from './Components/loading';
+import Profile from './pages/Profile';
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -36,6 +37,7 @@ const App = () => {
             <Route path='/signup' element={<Signup />} />
             <Route path='/exercises' element={<Exercises />} />
             <Route path='/diet-plan' element={<DietPlan />} />
+            <Route path='/profile' element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />
