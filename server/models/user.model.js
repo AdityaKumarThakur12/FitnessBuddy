@@ -2,11 +2,14 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    name: {type: String,required: true},
-    email: {type: String,required: true,unique: true,lowercase: true,trim: true},
-    passwordHash: {type: String,required: true},
-    location: {type: String,default: ""},
-    workoutPreferences: {type: [String],default: []},
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    password: { type: String, required: true },
+    dateOfBirth: { type: Date, required: true },
+    city: { type: String, default: "" },
+    state: { type: String, default: "" },
+    workoutPreferences: { type: [String], default: [] },
     // fitnessGoals: [{type: mongoose.Schema.Types.ObjectId,ref: "Goal"}],
     // buddies: [{type: mongoose.Schema.Types.ObjectId,ref: "User"}],
     profileImage: {type: String,default: ""},
