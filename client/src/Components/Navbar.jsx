@@ -1,16 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiHome,  FiInfo, FiCalendar, FiUser, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiInfo, FiCalendar, FiUser, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 import AOS from "aos";
 import "aos/dist/aos.css";
-// import { useAuth } from '../context/AuthContext'; // Uncomment if using AuthContext
+import useAuth from '../Context/AuthContext';
 
 const Navbar = () => {
-  // Replace the following line with your authentication context if applicable
-  const currentUser = null; // Replace with `useAuth()` if using AuthContext
-  const logout = () => {}; // Replace with actual logout function
-
+  const { user, logout } = useAuth(); // 🍃 context-powered login state
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -27,7 +24,7 @@ const Navbar = () => {
 
   const navigationItems = [
     { name: 'Home', path: '/', icon: <FiHome className="mr-2" /> },
-    { name: 'Workouts', path: '/workouts', icon: <FiInfo/> },
+    { name: 'Workouts', path: '/workouts', icon: <FiInfo /> },
     { name: 'Exercises', path: '/exercises', icon: <FiInfo className="mr-2" /> },
     { name: 'Diet Plan', path: '/diet-plan', icon: <FiCalendar className="mr-2" /> },
     { name: 'Progress', path: '/progress', icon: <FiCalendar className="mr-2" /> },
@@ -58,15 +55,16 @@ const Navbar = () => {
             </div>
           </div>
 
+          {/* Desktop buttons */}
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            {currentUser ? (
+            {user ? (
               <div className="flex items-center">
                 <Link
                   to="/profile"
                   className="flex items-center bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-150"
                 >
                   <FiUser className="mr-2" />
-                  <span>{currentUser.name}</span>
+                  <span>{user?.firstName || "Profile"}</span>
                 </Link>
                 <button
                   onClick={handleLogout}
@@ -136,7 +134,7 @@ const Navbar = () => {
             ))}
           </div>
           <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700">
-            {currentUser ? (
+            {user ? (
               <div className="space-y-1">
                 <Link
                   to="/profile"
