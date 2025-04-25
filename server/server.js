@@ -3,6 +3,7 @@ const express = require("express")
 const { connectingDB } = require("./db");
 const cors = require('cors')
 const exerciseRoutes = require('./routes/exerciseRoutes')
+const { userRouter } = require("./routes/user.route")
 const app = express();
 
 
@@ -11,13 +12,16 @@ app.use(cors());
 
 
 app.use('/api/exercise', exerciseRoutes)
-
+app.use("/user",userRouter)
 
 connectingDB()
 
 
+app.use((req,res)=>{
+    return res.status(404).json({msg:`Route Not Found`})
+})
 
-const port = process.env.port || 8080
+const port = process.env.port || 8000
 app.listen(port,()=>{
     console.log(`Server connected on ${port} port`)
 })
