@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { FiHeart, FiInstagram, FiTwitter, FiFacebook, FiYoutube } from 'react-icons/fi';
 import AOS from "aos";
 import "aos/dist/aos.css";
+import ChatBot from './ChatBot';
 
 const Footer = () => {
 
@@ -127,6 +128,7 @@ const Footer = () => {
           </p>
         </div>
       </div>
+      <ChatBot/>
     </footer>
   )
 }

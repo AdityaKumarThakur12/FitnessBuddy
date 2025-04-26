@@ -19,7 +19,7 @@ const Login = () => {
         const {refreshToken, findUser } = res.data;
         login(refreshToken);
         localStorage.setItem('userData', JSON.stringify(findUser));
-        navigate("/");
+        navigate("/dashboard");
       })
       .catch((err) => {
         const msg = err.response?.data?.msg || "Login failed";

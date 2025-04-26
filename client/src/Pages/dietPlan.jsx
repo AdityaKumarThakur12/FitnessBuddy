@@ -3,6 +3,10 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { motion } from 'framer-motion';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import DietHistoryModal from '../Components/DietHistoryModal';
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
@@ -33,52 +37,133 @@ const DietPlan = () => {
   const [loadingDay, setLoadingDay] = useState(null);
   const [openDay, setOpenDay] = useState(null);
   const [savedDays, setSavedDays] = useState({});
+  const [userData, setUserData] = useState(null);
+  const [fitnessFact, setFitnessFact] = useState('');
+  const [loadingFact, setLoadingFact] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [selectedDietPlan, setSelectedDietPlan] = useState(null);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedDays, setGeneratedDays] = useState(new Set());
   const pdfRef = useRef(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchUserData();
+    generateFitnessFact();
+  }, []);
 
   useEffect(() => {
     if (currentQuestion >= questions.length) {
+      setIsGenerating(true);
       generateFullWeekPlan();
     }
   }, [currentQuestion]);
 
-  const generateDietPlan = async (day) => {
-    setLoadingDay(day);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const vibes = [
-        "Make it light and energizing 🌞",
-        "Add a bit of traditional flair 🍲",
-        "Go international with flavors 🌍",
-        "Make it creative and playful 🎨",
-        "Think fitness-enthusiast approved 💪",
-        "Keep it cozy and comfort-food-inspired 🍛",
-        "Add a bit of street food fusion 🌯",
-      ];
-    const prompt = `Generate a structured ${answers.preference} diet plan for someone aiming for ${answers.goal}, eating ${answers.mealsPerDay} meals a day, for ${day}.
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
 
-Use this exact format:
-- Title the section as "Morning", "Lunch", "Evening Snack", and "Dinner"
-- Below each section title, give 3-4 bullet points (not using * or - symbols), just line breaks
-- No markdown symbols, no asterisks, no stars
-- Make it sound fun and include relevant emojis
-- Keep it readable and short
-`;
+      const response = await axios.get('http://localhost:8000/user/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setUserData(response.data);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      if (error.response?.status === 401) {
+        navigate('/login');
+      }
+    }
+  };
+
+  const generateFitnessFact = async () => {
+    setLoadingFact(true);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const prompt = `Generate a random interesting fitness fact related to one of these topics:
+    - Weight loss tips
+    - Muscle building facts
+    - Nutrition science
+    - Exercise benefits
+    Keep it concise (2-3 sentences) and engaging.`;
 
     try {
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      const text = await response.text();
-      setPlans((prev) => ({ ...prev, [day]: text }));
-    } catch (err) {
-      console.error("Error generating:", err);
-      setPlans((prev) => ({ ...prev, [day]: "❌ Failed to generate. Try again." }));
+      setFitnessFact(response.text());
+    } catch (error) {
+      console.error('Error generating fact:', error);
+      setFitnessFact('Unable to load fitness fact. Please try again.');
     } finally {
-      setLoadingDay(null);
+      setLoadingFact(false);
+    }
+  };
+
+  const generateDietPlan = async (day) => {
+    setLoadingDay(day);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const prompt = `Create a structured ${answers.preference} diet plan for ${answers.goal}, with ${answers.mealsPerDay} meals for ${day}.
+    
+    Format the response as follows:
+    Morning (Time: 7-9 AM)
+    • Meal item 1 with portion size
+    • Meal item 2 with portion size
+    • Add calorie count
+
+    Mid-Morning (Time: 11 AM)
+    • Snack items with portions
+    • Add calorie count
+
+    Lunch (Time: 1-2 PM)
+    • Main dish with portion
+    • Side items with portions
+    • Add calorie count
+
+    Evening Snack (Time: 4-5 PM)
+    • Healthy snack options
+    • Add calorie count
+
+    Dinner (Time: 7-8 PM)
+    • Main dish with portion
+    • Side items with portions
+    • Add calorie count
+
+    Total daily calories: [Sum]
+    Protein: [g] | Carbs: [g] | Fats: [g]
+
+    Add emojis for visual appeal and keep formatting clean.`;
+
+    try {
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = await response.text();
+        setPlans((prev) => ({ ...prev, [day]: text }));
+    } catch (err) {
+        console.error("Error generating:", err);
+        setPlans((prev) => ({ ...prev, [day]: "❌ Failed to generate. Try again." }));
+    } finally {
+        setLoadingDay(null);
+        setGeneratedDays(prev => new Set([...prev, day]));
     }
   };
 
   const generateFullWeekPlan = async () => {
-    for (const day of daysOfWeek) {
-      await generateDietPlan(day);
+    setIsGenerating(true);
+    try {
+      for (const day of daysOfWeek) {
+        await generateDietPlan(day);
+        setGeneratedDays(prev => new Set([...prev, day]));
+      }
+    } catch (error) {
+      console.error('Error generating full week plan:', error);
+      toast.error('Failed to generate some days. Please try again.');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -108,6 +193,43 @@ Use this exact format:
     pdf.save('DietPlan.pdf');
   };
 
+  const handleSaveWeeklyPlan = async () => {
+    try {
+        setSaving(true);
+        const token = localStorage.getItem('token');
+        
+        // Create complete weekly plan object
+        const weeklyPlan = {
+            plans: plans,  // Complete 7-day plan
+            goal: answers.goal,
+            preference: answers.preference,
+            mealsPerDay: answers.mealsPerDay
+        };
+
+        const response = await axios.post('http://localhost:8000/user/save-diet', 
+            weeklyPlan,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+
+        // Update local state with new history
+        setUserData(prev => ({
+            ...prev,
+            dietHistory: response.data.dietHistory
+        }));
+
+        toast.success('Weekly meal plan saved successfully!');
+    } catch (error) {
+        console.error('Error saving meal plan:', error);
+        toast.error('Failed to save meal plan');
+    } finally {
+        setSaving(false);
+    }
+  };
+
   const formatPlan = (plan) => {
     const sections = plan
       .split(/(?=Breakfast|Lunch|Dinner|Snack|Snacks)/gi)
@@ -124,99 +246,175 @@ Use this exact format:
     return sections;
   };
 
+  const handleDietHistoryClick = (historyItem) => {
+    setSelectedDietPlan(historyItem);
+    setIsHistoryModalOpen(true);
+  };
+
   return (
-    <motion.div
-      className="min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] text-white flex flex-col items-center py-10 px-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
-      <h1 className="text-3xl md:text-4xl font-bold mb-6">🥗 AI-Powered Diet Wizard</h1>
-
-      {currentQuestion < questions.length ? (
-        <div className="bg-gray-900 p-6 rounded-2xl shadow-lg text-center max-w-md">
-          <h2 className="text-xl mb-4">{questions[currentQuestion].question}</h2>
-          <div className="flex flex-wrap justify-center gap-4">
-            {questions[currentQuestion].options.map((option) => (
-              <button
-                key={option}
-                onClick={() => handleAnswer(questions[currentQuestion].key, option)}
-                className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-full transition"
-              >
-                {option}
-              </button>
-            ))}
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-bold text-white mb-4">Your Custom Diet Plan</h1>
+          <p className="text-gray-400">Personalized nutrition guidance for your fitness journey</p>
         </div>
-      ) : (
-        <>
-          <motion.div
-            className="bg-gray-900 rounded-2xl shadow-lg p-6 max-w-2xl w-full space-y-4"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            ref={pdfRef}
-          >
-            <h2 className="text-xl font-semibold mb-2 text-purple-300">
-              {answers.goal} | {answers.preference} | {answers.mealsPerDay} meals/day
-            </h2>
 
-            {daysOfWeek.map((day) => (
-              <div key={day}>
-                <div
-                  onClick={() => toggleDay(day)}
-                  className="cursor-pointer py-3 flex justify-between items-center border-b border-gray-600"
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Left Column - Diet History (col-span-1) */}
+          <div className="bg-gray-800/50 backdrop-blur rounded-2xl p-6 border border-gray-700/50">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold text-white">Previous Plans</h2>
+              <span className="text-sm text-gray-400">
+                {userData?.dietHistory?.length || 0} saved plans
+              </span>
+            </div>
+
+            <div className="space-y-4">
+              {userData?.dietHistory?.slice(0, 3).map((history, index) => (
+                <motion.div 
+                  key={index}
+                  className="bg-gray-900/50 rounded-xl p-4 border border-gray-700/30 
+                             hover:border-sky-500/50 transition-all cursor-pointer"
+                  onClick={() => handleDietHistoryClick(history)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <h3 className="text-lg font-semibold">{day}</h3>
-                  <span className="text-sm text-gray-400">
-                    {openDay === day ? "Close" : "Open"}
-                  </span>
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-medium text-white">{history.goal}</h3>
+                    <span className="text-xs text-gray-500">
+                      {new Date(history.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-400">
+                    {history.preference} • {history.mealsPerDay} meals/day
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Center Column - Diet Days List (col-span-2) */}
+          <div className="lg:col-span-2">
+            {currentQuestion < questions.length ? (
+              <div className="bg-gray-800/50 backdrop-blur rounded-2xl p-8 border border-gray-700/50">
+                <div className="mb-8">
+                  <div className="flex justify-between mb-4">
+                    <span className="text-gray-400">Step {currentQuestion + 1} of {questions.length}</span>
+                    <span className="text-sky-400">{Math.round(((currentQuestion + 1) / questions.length) * 100)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-700 h-2 rounded-full">
+                    <div 
+                      className="bg-sky-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+                    />
+                  </div>
                 </div>
 
-                {openDay === day && (
-                  <motion.div
-                    className="p-4 bg-gray-800 rounded-lg mt-2 shadow-inner"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                  >
-                    {loadingDay === day ? (
-                      <p className="text-center text-purple-300 animate-pulse">⏳ Generating...</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {plans[day] ? formatPlan(plans[day]) : "⚠️ Not available."}
-                      </div>
-                    )}
-                    <div className="flex justify-between pt-4">
+                <h2 className="text-2xl font-semibold text-white mb-6">
+                  {questions[currentQuestion].question}
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {questions[currentQuestion].options.map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => handleAnswer(questions[currentQuestion].key, option)}
+                      className="bg-gray-700/50 hover:bg-sky-600/20 border border-gray-600 hover:border-sky-500 
+                               text-white px-6 py-4 rounded-xl transition-all duration-300"
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Plan Header */}
+                <div className="bg-gray-800/50 backdrop-blur rounded-2xl p-6 border border-gray-700/50">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h2 className="text-2xl font-semibold text-white mb-2">Weekly Meal Plan</h2>
+                      <p className="text-gray-400">
+                        {answers.goal} • {answers.preference} • {answers.mealsPerDay} meals/day
+                      </p>
+                    </div>
+                    <div className="flex gap-4">
                       <button
-                        onClick={() => generateDietPlan(day)}
-                        disabled={loadingDay === day}
-                        className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition"
+                        onClick={handleSaveWeeklyPlan}
+                        disabled={saving || isGenerating || generatedDays.size < 7}
+                        className="bg-sky-600 hover:bg-sky-700 text-white px-6 py-3 rounded-xl 
+                                 transition-all duration-300 disabled:opacity-50"
                       >
-                        🔁 Regenerate
+                        {saving ? 'Saving...' : isGenerating ? 'Generating...' : 'Save Plan'}
                       </button>
                       <button
-                        onClick={() => handleSave(day)}
-                        disabled={!plans[day]}
-                        className={`px-4 py-2 rounded-lg transition ${
-                          savedDays[day] ? "bg-green-600" : "bg-blue-600 hover:bg-blue-700"
-                        }`}
+                        onClick={handleDownloadPDF}
+                        disabled={isGenerating || generatedDays.size < 7}
+                        className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-xl 
+                                 transition-all duration-300 disabled:opacity-50"
                       >
-                        {savedDays[day] ? "✅ Saved" : "💾 Save"}
+                        Download PDF
                       </button>
                     </div>
-                  </motion.div>
-                )}
-              </div>
-            ))}
-          </motion.div>
+                  </div>
+                </div>
 
-          <button
-            onClick={handleDownloadPDF}
-            className="mt-6 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-xl font-semibold text-white shadow-lg transition"
-          >
-            📥 Download Full Diet Plan (PDF)
-          </button>
-        </>
-      )}
-    </motion.div>
+                {/* Days List */}
+                <div className="space-y-4">
+                  {daysOfWeek.map((day) => (
+                    <div 
+                      key={day}
+                      onClick={() => toggleDay(day)}
+                      className={`bg-gray-800/50 backdrop-blur rounded-xl p-4 border border-gray-700/50 
+                                cursor-pointer hover:border-sky-500/50 transition-all
+                                ${openDay === day ? 'border-sky-500' : ''}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-medium text-white">{day}</h3>
+                        {loadingDay === day ? (
+                          <span className="text-purple-400 animate-pulse">Generating...</span>
+                        ) : (
+                          <span className="text-sky-400">{plans[day] ? '✓' : '...'}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column - Day Detail View (col-span-1) */}
+          <div className="bg-gray-800/50 backdrop-blur rounded-2xl p-6 border border-gray-700/50">
+            {openDay ? (
+              <div className="h-full">
+                <h2 className="text-2xl font-semibold text-white mb-4">{openDay}'s Diet</h2>
+                <div className="overflow-y-auto max-h-[calc(100vh-300px)]">
+                  {loadingDay === openDay ? (
+                    <p className="text-center text-purple-300 animate-pulse">⏳ Generating...</p>
+                  ) : plans[openDay] ? (
+                    <div className="space-y-3">
+                      {formatPlan(plans[openDay])}
+                    </div>
+                  ) : (
+                    <p className="text-gray-400 text-center">Select a day to view details</p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <p className="text-gray-400 text-center">Select a day to view details</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <DietHistoryModal 
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        dietPlan={selectedDietPlan}
+      />
+    </div>
   );
 };
 

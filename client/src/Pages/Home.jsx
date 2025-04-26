@@ -111,7 +111,7 @@ const Home = () => {
                         You're not here to be average. You're here to be legendary.
                         Every drop of sweat is fuel. Every rep, every run, every decision — it's all building the best version of you.
                     </p>
-                    <button className="mt-2 px-4 py-2 bg-[#00f2ff]/20 text-white border border-[#00f2ff] rounded-xl backdrop-blur hover:bg-[#00f2ff]/40 transition-all duration-300 text-sm">
+                    <button onClick={() => navigate('/signup')} className="mt-2 px-4 py-2 bg-[#00f2ff]/20 text-white border border-[#00f2ff] rounded-xl backdrop-blur hover:bg-[#00f2ff]/40 transition-all duration-300 text-sm">
                         Join the Revolution
                     </button>
                 </div>
