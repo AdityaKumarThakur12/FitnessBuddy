@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from 'axios';
+import OnboardingSteps from "./OnboardingSteps";
+
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -12,10 +14,32 @@ const Signup = () => {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
+  const [step, setStep] = useState(1);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [userToken, setUserToken] = useState(null);
+
+  const validateAge = (dateString) => {
+    const today = new Date();
+    const birthDate = new Date(dateString);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age >= 12;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    
+    if (!validateAge(dateOfBirth)) {
+      alert("You must be at least 12 years old to register");
+      return;
+    }
+
     const formData = {
       firstName,
       lastName,
@@ -26,17 +50,24 @@ const Signup = () => {
       state,
     };
   
-    axios.post("http://localhost:8000/user/signup", formData)
-    .then((res) => {
-      alert(res.data.msg);
-      navigate("/login");
-    })
-    .catch((err) => {
+    try {
+      const response = await axios.post("http://localhost:8000/user/signup", formData);
+      setUserId(response.data.userId);
+      setUserToken(response.data.refreshToken);
+      setRegistrationComplete(true);
+    } catch (err) {
       const msg = err.response?.data?.msg || "Signup failed";
       console.error("Signup failed", err);
       alert(msg);
-    });
-};
+    }
+  };
+
+  if (registrationComplete) {
+    return <OnboardingSteps 
+        userId={userId} 
+        token={userToken} 
+    />;
+  }
 
   return (
     <div className="min-h-screen relative">
@@ -81,114 +112,108 @@ const Signup = () => {
             </p>
 
             <form className="space-y-4" onSubmit={handleSubmit}>
-      <div>
-        <input
-          className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
-          type="text"
-          placeholder="First Name"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          required
-        />
-      </div>
+              <div className="grid grid-cols-2 gap-4">
+                <input
+                  className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3"
+                  type="text"
+                  placeholder="First Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                />
+                <input
+                  className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3"
+                  type="text"
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                />
+              </div>
 
-      <div>
-        <input
-          className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
-          type="text"
-          placeholder="Last Name"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          required
-        />
-      </div>
+              <div>
+                <input
+                  className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
 
-      <div>
-        <input
-          className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </div>
+              <div>
+                <input
+                  className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
 
-      <div>
-        <input
-          className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </div>
+              <div>
+                <input
+                  className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                  type="date"
+                  placeholder="Date of Birth"
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  required
+                />
+              </div>
 
-      <div>
-        <input
-          className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
-          type="date"
-          placeholder="Date of Birth"
-          value={dateOfBirth}
-          onChange={(e) => setDateOfBirth(e.target.value)}
-          required
-        />
-      </div>
+              <div className="grid grid-cols-2 gap-4">
+                <input
+                  className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3"
+                  type="text"
+                  placeholder="City"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  required
+                />
+                <input
+                  className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3"
+                  type="text"
+                  placeholder="State"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  required
+                />
+              </div>
 
-      <div>
-        <input
-          className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
-          type="text"
-          placeholder="City"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          required
-        />
-      </div>
+              <div className="text-left mb-2">
+                <p className="text-xs text-gray-400">
+                  By clicking Create account, you agree to our{" "}
+                  <a href="#" className="text-sky-400 hover:text-sky-300">
+                    User Agreement
+                  </a>{" "}
+                  and{" "}
+                  <a href="#" className="text-sky-400 hover:text-sky-300">
+                    Privacy Notice
+                  </a>
+                  .
+                </p>
+              </div>
 
-      <div>
-        <input
-          className="w-full bg-gray-700/50 text-white border border-gray-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
-          type="text"
-          placeholder="State"
-          value={state}
-          onChange={(e) => setState(e.target.value)}
-          required
-        />
-      </div>
-
-      <div className="text-left mb-2">
-        <p className="text-xs text-gray-400">
-          By clicking Create account, you agree to our{" "}
-          <a href="#" className="text-sky-400 hover:text-sky-300">
-            User Agreement
-          </a>{" "}
-          and{" "}
-          <a href="#" className="text-sky-400 hover:text-sky-300">
-            Privacy Notice
-          </a>
-          .
-        </p>
-      </div>
-
-      <button className="w-full bg-sky-600 hover:bg-sky-700 text-white py-3 rounded-xl font-medium flex items-center justify-center transition-colors">
-        Create Account
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="ml-2 h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-          <polyline points="12 5 19 12 12 19"></polyline>
-        </svg>
-      </button>
-    </form>
+              <button className="w-full bg-sky-600 hover:bg-sky-700 text-white py-3 rounded-xl font-medium flex items-center justify-center transition-colors">
+                Create Account
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="ml-2 h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </button>
+            </form>
 
             <div className="flex items-center my-6">
               <div className="flex-grow h-px bg-gray-600"></div>
@@ -227,15 +252,6 @@ const Signup = () => {
             </div>
           </div>
         </div>
-
-        {/* <footer className="absolute bottom-0 w-full border-t border-gray-800 py-6 text-center px-4">
-          <p className="text-gray-500 text-xs">
-            Copyright © 2025 FitPulse AI. All Rights Reserved.{" "}
-            <a href="#" className="text-sky-600 hover:text-sky-400 transition-colors">Privacy</a> •{" "}
-            <a href="#" className="text-sky-600 hover:text-sky-400 transition-colors">Terms</a> •{" "}
-            <a href="#" className="text-sky-600 hover:text-sky-400 transition-colors">Cookies</a>
-          </p>
-        </footer> */}
       </div>
     </div>
   );

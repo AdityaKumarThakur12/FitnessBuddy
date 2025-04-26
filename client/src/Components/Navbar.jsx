@@ -28,6 +28,8 @@ const Navbar = () => {
     { name: 'Exercises', path: '/exercises', icon: <FiInfo className="mr-2" /> },
     { name: 'Diet Plan', path: '/diet-plan', icon: <FiCalendar className="mr-2" /> },
     { name: 'Progress', path: '/progress', icon: <FiCalendar className="mr-2" /> },
+    { name: 'Dashboard', path: '/dashboard', icon: <FiCalendar className="mr-2" /> },
+    { name: 'Gym finder', path: '/gymfinder', icon: <FiCalendar className="mr-2" /> },
   ];
 
   return (
