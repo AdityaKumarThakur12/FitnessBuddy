@@ -14,7 +14,7 @@ const Login = () => {
   
     const loginData = { email, password };
   
-    axios.post("http://localhost:8000/user/login", loginData)
+    axios.post("https://fitnessbuddy.onrender.com/user/login", loginData)
       .then((res) => {
         const {refreshToken, findUser } = res.data;
         login(refreshToken);

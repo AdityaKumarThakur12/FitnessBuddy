@@ -68,7 +68,7 @@ const DietPlan = () => {
         return;
       }
 
-      const response = await axios.get('http://localhost:8000/user/profile', {
+      const response = await axios.get('https://fitnessbuddy.onrender.com/user/profile', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -206,7 +206,7 @@ const DietPlan = () => {
             mealsPerDay: answers.mealsPerDay
         };
 
-        const response = await axios.post('http://localhost:8000/user/save-diet', 
+        const response = await axios.post('https://fitnessbuddy.onrender.com/user/save-diet', 
             weeklyPlan,
             {
                 headers: {

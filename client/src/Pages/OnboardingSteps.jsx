@@ -164,7 +164,7 @@ const OnboardingSteps = ({ userId, token }) => {
         } else {
             try {
                 const response = await axios.post(
-                    'http://localhost:8000/user/update-profile',
+                    'https://fitnessbuddy.onrender.com/user/update-profile',
                     {
                         ...formData,
                         userId

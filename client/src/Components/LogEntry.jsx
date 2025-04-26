@@ -233,7 +233,7 @@ const LogEntry = ({ onLogSaved, date = new Date() }) => {
             };
 
             const token = localStorage.getItem('token');
-            const response = await axios.post('http://localhost:8000/user/log-entry', logData, {
+            const response = await axios.post('https://fitnessbuddy.onrender.com/user/log-entry', logData, {
                 headers: { 
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'

@@ -230,7 +230,7 @@ const WorkoutsList = () => {
     const saveWorkout = async (workout) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:8000/api/workouts/save', 
+            await axios.post('https://fitnessbuddy.onrender.com/api/workouts/save', 
                 { workout },
                 { headers: { 'Authorization': `Bearer ${token}` }}
             );

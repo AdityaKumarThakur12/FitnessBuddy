@@ -74,7 +74,7 @@ const Progress = () => {
                 throw new Error('No authorization token found');
             }
 
-            const response = await axios.get(`http://localhost:8000/user/progress/${timeframe}`, {
+            const response = await axios.get(`https://fitnessbuddy.onrender.com/user/progress/${timeframe}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 

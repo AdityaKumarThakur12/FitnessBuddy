@@ -83,7 +83,7 @@ const Dashboard = () => {
             return;
         }
 
-        const response = await axios.get('http://localhost:8000/user/profile', {
+        const response = await axios.get('https://fitnessbuddy.onrender.com/user/profile', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -141,7 +141,7 @@ const generateAIRecommendations = async (user) => {
         // Update recommendations in the database
         const token = localStorage.getItem('token');
         await axios.post(
-            'http://localhost:8000/user/update-profile',
+            'https://fitnessbuddy.onrender.com/user/update-profile',
             {
                 userId: user._id,
                 height: user.height,
