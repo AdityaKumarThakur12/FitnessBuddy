@@ -3,7 +3,8 @@ const express = require("express")
 const { connectingDB } = require("./db");
 const cors = require('cors')
 const exerciseRoutes = require('./routes/exerciseRoutes')
-const { userRouter } = require("./routes/user.route")
+const { userRouter } = require("./routes/user.route");
+const workoutRouter = require('./routes/workout')
 const app = express();
 
 
@@ -12,7 +13,8 @@ app.use(cors());
 
 
 app.use('/api/exercise', exerciseRoutes)
-app.use("/user",userRouter)
+app.use("/user",userRouter);
+app.use('/api/workouts', workoutRouter)
 
 connectingDB()
 

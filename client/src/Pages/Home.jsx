@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useWorkout } from '../Context/workoutContext'
+// import { useWorkout } from '../Context/workoutContext'
 import { motion } from 'framer-motion'
 import { FiArrowRight, FiActivity, FiStar, FiCalendar, FiClock, FiAward, FiPieChart } from 'react-icons/fi'
-import WorkoutCard from '../Components/workoutCard';
+// import WorkoutCard from '../Components/workoutCard';
 import MindMirror from '../Components/mind'
 import Carousel from '../Components/carousel';
 import AOS from "aos";
@@ -11,14 +11,14 @@ import "aos/dist/aos.css";
 
 const Home = () => {
     const navigate = useNavigate()
-    const { workouts, userProgress } = useWorkout()
+    
 
     useEffect(() => {
         AOS.init();
     }, []);
 
     // Get featured workouts (first 3)
-    const featuredWorkouts = workouts.slice(0, 3)
+   
 
     // Animation variants
     const containerVariants = {
@@ -133,7 +133,7 @@ const Home = () => {
 
 
 
-            {/* Featured workouts section */}
+            {/* Featured workouts section
             <section>
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Featured Workouts</h2>
@@ -151,7 +151,7 @@ const Home = () => {
                         <WorkoutCard key={workout.id} workout={workout} />
                     ))}
                 </div>
-            </section>
+            </section> */}
 
             <MindMirror/>
 
